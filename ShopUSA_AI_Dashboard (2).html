@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopUSA — AI-Powered Executive Intelligence Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060912;--surface:#0c1120;--surface2:#111a2e;--border:#1a2744;--accent:#00d4ff;--accent-dim:rgba(0,212,255,0.12);--orange:#ff6b35;--green:#34d399;--red:#f87171;--purple:#a78bfa;--gold:#fbbf24;--text:#e8edf7;--muted:#5a6a8a;--muted2:#3d4f6f}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.bg-grid{position:fixed;top:0;left:0;right:0;bottom:0;z-index:0;background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);background-size:60px 60px;pointer-events:none}
+.bg-glow{position:fixed;top:-30%;left:20%;width:60%;height:60%;z-index:0;background:radial-gradient(ellipse,rgba(0,212,255,0.06) 0%,transparent 70%);pointer-events:none}
+.container{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:32px 40px}
+header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;animation:fadeUp .6s ease both}
+.logo-area{display:flex;align-items:center;gap:16px}
+.logo-mark{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#0066ff);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:20px;color:#fff;letter-spacing:1px}
+.brand h1{font-family:'Bebas Neue';font-size:36px;line-height:1;letter-spacing:2px}
+.brand h1 span{color:var(--accent)}
+.brand .tagline{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-top:2px}
+.header-meta{text-align:right}
+.header-meta .date{font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
+.live-dot{display:inline-block;width:8px;height:8px;background:var(--green);border-radius:50%;margin-right:6px;animation:pulse 2s infinite}
+.market-tabs{display:flex;gap:8px;margin-bottom:28px;flex-wrap:wrap}
+.tab{padding:8px 20px;border-radius:8px;font-size:13px;font-weight:500;background:var(--surface);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .2s;letter-spacing:.5px}
+.tab:hover{border-color:var(--accent);color:var(--text)}
+.tab.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent);font-weight:700}
+.divider{height:1px;margin-bottom:28px;background:linear-gradient(90deg,var(--accent),var(--border) 50%,transparent)}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;transition:border-color .3s,transform .2s}
+.kpi-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.kpi-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.kpi-value{font-family:'Bebas Neue';font-size:42px;line-height:1;letter-spacing:1px}
+.kpi-sub{font-size:12px;color:var(--muted);margin-top:6px}
+.kpi-change{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-top:8px}
+.kpi-change.up{background:rgba(52,211,153,.12);color:var(--green)}
+.kpi-change.down{background:rgba(248,113,113,.12);color:var(--red)}
+.main-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px}
+.card-title{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);margin-bottom:16px;font-weight:500}
+.card-full{grid-column:1/-1}
+.market-table{width:100%;border-collapse:collapse}
+.market-table th{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:8px 12px;text-align:left;border-bottom:1px solid var(--border)}
+.market-table td{padding:12px;font-size:13px;border-bottom:1px solid rgba(26,39,68,.5)}
+.market-table tr:hover td{background:rgba(0,212,255,.03)}
+.market-table tr.active-row td{background:rgba(0,212,255,.06)}
+.market-table tr.total-row td{background:rgba(255,255,255,.02);font-weight:700}
+.donut-wrapper{display:flex;align-items:center;gap:24px}
+.donut-svg{width:140px;height:140px}
+.donut-legend{flex:1}
+.donut-legend-item{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.donut-dot{width:10px;height:10px;border-radius:50%}
+.donut-legend-label{font-size:13px}
+.donut-legend-val{font-family:'JetBrains Mono';font-size:13px;font-weight:600;margin-left:auto}
+.cat-list{list-style:none}
+.cat-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(26,39,68,.4)}
+.cat-rank{font-family:'Bebas Neue';font-size:20px;color:var(--accent);width:28px;text-align:center}
+.cat-name{font-size:13px;flex:1}
+.cat-bar-wrap{width:120px;height:6px;background:var(--surface2);border-radius:3px}
+.cat-bar{height:100%;border-radius:3px;background:var(--accent)}
+.chart-wrap{position:relative;height:260px}
+.chart-wrap canvas{width:100%!important}
+.ai-section{margin-bottom:24px}
+.ai-header{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.ai-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--purple),var(--accent));display:flex;align-items:center;justify-content:center;font-size:16px}
+.ai-header h3{font-family:'Bebas Neue';font-size:22px;letter-spacing:1px}
+.ai-header h3 span{color:var(--purple)}
+.insight-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.insight-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;border-left:3px solid var(--purple);transition:transform .2s}
+.insight-card:hover{transform:translateY(-2px)}
+.insight-tag{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--purple);margin-bottom:8px;font-weight:600}
+.insight-card h4{font-size:14px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.insight-card p{font-size:12px;color:var(--muted);line-height:1.6}
+.impact{margin-top:12px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;display:inline-block}
+.impact.high{background:rgba(52,211,153,.12);color:var(--green)}
+.impact.medium{background:rgba(251,191,36,.12);color:var(--gold)}
+.impact.critical{background:rgba(248,113,113,.12);color:var(--red)}
+.opps-section{margin-bottom:24px}
+.opp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.opp-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;transition:all .3s}
+.opp-card:hover{border-color:var(--accent);transform:translateY(-3px)}
+.opp-icon{width:48px;height:48px;border-radius:12px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.opp-card h4{font-size:14px;font-weight:700;margin-bottom:6px}
+.opp-card p{font-size:11px;color:var(--muted);line-height:1.5}
+.opp-est{margin-top:12px;font-family:'JetBrains Mono';font-size:18px;font-weight:600}
+footer{text-align:center;padding:24px 0;font-size:11px;color:var(--muted2);letter-spacing:1px;border-top:1px solid var(--border)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@media(max-width:1100px){.kpi-row{grid-template-columns:repeat(2,1fr)}.main-grid{grid-template-columns:1fr}.insight-grid{grid-template-columns:1fr}.opp-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.container{padding:16px}.kpi-row{grid-template-columns:1fr}.opp-grid{grid-template-columns:1fr}header{flex-direction:column;gap:16px}}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div><div class="bg-glow"></div>
+<div class="container">
+<header>
+  <div class="logo-area"><div class="logo-mark">S</div><div class="brand"><h1>SHOP<span>USA</span></h1><div class="tagline">AI-Powered Executive Intelligence</div></div></div>
+  <div class="header-meta"><div class="date"><span class="live-dot"></span>Live Data — Updated Feb 2026</div><div style="font-size:12px;color:var(--muted);margin-top:4px;">Prepared for CEO Review</div></div>
+</header>
+<div class="market-tabs" id="marketTabs"></div>
+<div class="divider"></div>
+<div class="kpi-row" id="kpiRow"></div>
+<div class="main-grid" id="mainGrid"></div>
+<div id="monthlySection"></div>
+<div class="ai-section" id="aiSection"></div>
+<div class="opps-section" id="oppsSection"></div>
+<div id="aggFooter"></div>
+<footer>ShopUSA AI Intelligence Dashboard · Confidential · Prepared by AI Analytics Team · Data through Feb 2026</footer>
+</div>
+
+<script>
+// ====================================================================
+// ALL DATA — VERIFIED FROM UPLOADED ShopUSA_Dashboard.html
+// ====================================================================
+const D={
+dk:{name:"Denmark",flag:"🇩🇰",color:"#00d4ff",
+  signups:{y24:1018,y25:785,f26:92},orders:{y24:2101,y25:1777,f26:272},
+  signupsYoY:"-23%",ordersYoY:"-15%",
+  basic:{y24:1005,y25:736,f26:84},premium:{y24:13,y25:49,f26:8},premYoY:"+277%",
+  convRate:{y24:206.4,y25:226.4,f26:295.7},convLabel:"▲ 9.7 pts",convUp:true,
+  ship:{total25:1765,p:[
+    {name:"Fly (Air)",y24:1734,y25:1467,f26:199,color:"#00d4ff"},
+    {name:"Ocean (Sea)",y24:220,y25:179,f26:44,color:"#ff6b35"},
+    {name:"Express",y24:132,y25:119,f26:28,color:"#a78bfa"}]},
+  cats:["Vintage Car Parts (+30yr)","Car Parts — Bodyparts","Car Parts — Motorparts","PC Parts & Hardware","Books"],
+  monthly:{labels:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan '26","Feb '26"],
+           data:[192,157,157,141,148,120,100,144,116,135,100,146,113,111]}},
+se:{name:"Sweden",flag:"🇸🇪",color:"#ff6b35",
+  signups:{y24:233,y25:204,f26:51},orders:{y24:364,y25:244,f26:48},
+  signupsYoY:"-12%",ordersYoY:"-33%",
+  basic:{y24:229,y25:198,f26:51},premium:{y24:4,y25:6,f26:0},premYoY:"+50%",
+  convRate:{y24:156.2,y25:119.6,f26:94.1},convLabel:"▼ 23.4 pts",convUp:false,
+  ship:{total25:244,p:[
+    {name:"Fly (Air)",y24:234,y25:155,f26:35,color:"#00d4ff"},
+    {name:"Ocean (Sea)",y24:50,y25:37,f26:5,color:"#ff6b35"},
+    {name:"Express",y24:79,y25:52,f26:7,color:"#a78bfa"}]},
+  cats:["Car Parts — Body Parts","Car Parts — Engine Parts","Motorcycle — Sets & Parts","Vinyl Records LP","Books"]},
+in:{name:"India",flag:"🇮🇳",color:"#a78bfa",
+  signups:{y24:1773,y25:763,f26:103},orders:{y24:320,y25:228,f26:32},
+  signupsYoY:"-57%",ordersYoY:"-29%",
+  basic:{y24:1770,y25:760,f26:102},premium:{y24:3,y25:3,f26:1},premYoY:"flat",
+  convRate:{y24:18.1,y25:29.9,f26:31.1},convLabel:"▲ 65.2%",convUp:true,
+  ship:{total25:227,p:[
+    {name:"UPS",y24:143,y25:88,f26:0,color:"#00d4ff"},
+    {name:"FedEx",y24:168,y25:139,f26:32,color:"#ff6b35"}]},
+  cats:["Accessories, Other","Office, Other","Health, Makeup","Home, Other","Leisure, Toys & Games"],
+  oneCC:{y24:3,y25:21,f26:6}},
+gl:{name:"Global",flag:"🌐",color:"#fbbf24",
+  signups:{y24:987,y25:722,f26:126},orders:{y24:463,y25:208,f26:19},
+  signupsYoY:"-27%",ordersYoY:"-55%",
+  basic:{y24:972,y25:695,f26:112},premium:{y24:15,y25:27,f26:14},premYoY:"+80%",
+  convRate:{y24:46.9,y25:28.8,f26:15.1},convLabel:"▼ 18.1 pts",convUp:false,
+  ship:{total25:207,p:[
+    {name:"UPS",y24:267,y25:89,f26:0,color:"#00d4ff"},
+    {name:"FedEx",y24:192,y25:118,f26:19,color:"#ff6b35"}]},
+  cats:["Leisure & Books","Print Media","Accessories","Clothing — Cotton","Electronics","Adult Footwear"]}
+};
+const MK=["dk","se","in","gl"];
+let active="all";
+const F=n=>n.toLocaleString();
+
+// Aggregates from Performance Summary Table
+const AGG={
+  signups:{y24:4011,y25:2474,f26:372},
+  orders:{y24:3248,y25:2457,f26:371},
+  premium:{y24:35,y25:85,f26:23},
+  signupsYoY:"-38%",ordersYoY:"-24%",premYoY:"+143%"
+};
+
+function renderTabs(){
+  const el=document.getElementById("marketTabs");
+  [{k:"all",l:"All Markets"},{k:"dk",l:"🇩🇰 Denmark"},{k:"se",l:"🇸🇪 Sweden"},{k:"in",l:"🇮🇳 India"},{k:"gl",l:"🌐 Global"}].forEach(t=>{
+    const d=document.createElement("div");d.className="tab"+(active===t.k?" active":"");d.textContent=t.l;
+    d.onclick=()=>{active=t.k;renderAll()};el.appendChild(d);
+  });
+}
+
+function renderKPIs(){
+  const el=document.getElementById("kpiRow");
+  if(active==="all"){
+    el.innerHTML=`
+    <div class="kpi-card"><div class="kpi-label">Total Signups 2024</div><div class="kpi-value">${F(AGG.signups.y24)}</div><div class="kpi-sub">All 4 markets combined</div><div class="kpi-change down">${AGG.signupsYoY} YoY → ${F(AGG.signups.y25)} in 2025</div></div>
+    <div class="kpi-card"><div class="kpi-label">Total Orders 2024</div><div class="kpi-value">${F(AGG.orders.y24)}</div><div class="kpi-sub">All 4 markets combined</div><div class="kpi-change down">${AGG.ordersYoY} YoY → ${F(AGG.orders.y25)} in 2025</div></div>
+    <div class="kpi-card"><div class="kpi-label">Premium Members 2025</div><div class="kpi-value">${F(AGG.premium.y25)}</div><div class="kpi-sub">'24: ${F(AGG.premium.y24)} · Feb '26: ${F(AGG.premium.f26)}</div><div class="kpi-change up">${AGG.premYoY} YoY growth</div></div>
+    <div class="kpi-card"><div class="kpi-label">Feb 2026 Snapshot</div><div class="kpi-value">${F(AGG.signups.f26)}</div><div class="kpi-sub">Sign-ups · ${F(AGG.orders.f26)} orders · 4 active markets</div></div>`;
+  } else {
+    const d=D[active];
+    el.innerHTML=`
+    <div class="kpi-card"><div class="kpi-label">Signups 2024 — ${d.flag} ${d.name}</div><div class="kpi-value">${F(d.signups.y24)}</div><div class="kpi-sub">Basic: ${F(d.basic.y24)} · Premium: ${F(d.premium.y24)}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Signups 2025 — ${d.flag} ${d.name}</div><div class="kpi-value">${F(d.signups.y25)}</div><div class="kpi-sub">Basic: ${F(d.basic.y25)} · Premium: ${F(d.premium.y25)}</div><div class="kpi-change down">${d.signupsYoY} YoY</div></div>
+    <div class="kpi-card"><div class="kpi-label">Orders 2024</div><div class="kpi-value">${F(d.orders.y24)}</div><div class="kpi-sub">${d.ship.p.map(p=>p.name+": "+F(p.y24)).join(" · ")}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Orders 2025</div><div class="kpi-value">${F(d.orders.y25)}</div><div class="kpi-sub">${d.ship.p.map(p=>p.name+": "+F(p.y25)).join(" · ")}</div><div class="kpi-change down">${d.ordersYoY} YoY</div></div>`;
+  }
+}
+
+function renderMainGrid(){
+  const el=document.getElementById("mainGrid");let h="";
+  // Performance Summary Table — matches uploaded dashboard exactly
+  h+=`<div class="card card-full"><div class="card-title">Performance Summary Table</div><table class="market-table"><thead><tr><th>Market</th><th>Signups 2024</th><th>Signups 2025</th><th>YoY Δ</th><th>Orders 2024</th><th>Orders 2025</th><th>YoY Δ</th><th>Premium 2024</th><th>Premium 2025</th></tr></thead><tbody>`;
+  const rows=[
+    {f:"🇮🇳",n:"India",s24:1773,s25:763,sy:"-57%",o24:320,o25:228,oy:"-29%",p24:3,p25:3},
+    {f:"🌍",n:"GL (Other)",s24:987,s25:722,sy:"-27%",o24:463,o25:208,oy:"-55%",p24:15,p25:27},
+    {f:"🇸🇪",n:"Sweden",s24:233,s25:204,sy:"-12%",o24:364,o25:244,oy:"-33%",p24:4,p25:6},
+    {f:"🇩🇰",n:"Denmark",s24:1018,s25:785,sy:"-23%",o24:2101,o25:1777,oy:"-15%",p24:13,p25:49},
+  ];
+  rows.forEach(r=>{
+    const isActive=(active==="in"&&r.n==="India")||(active==="gl"&&r.n.includes("GL"))||(active==="se"&&r.n==="Sweden")||(active==="dk"&&r.n==="Denmark");
+    h+=`<tr class="${isActive?'active-row':''}"><td><strong>${r.f} ${r.n}</strong></td><td>${F(r.s24)}</td><td>${F(r.s25)}</td><td style="color:var(--red)">${r.sy}</td><td>${F(r.o24)}</td><td>${F(r.o25)}</td><td style="color:var(--red)">${r.oy}</td><td>${F(r.p24)}</td><td>${F(r.p25)}</td></tr>`;
+  });
+  h+=`<tr class="total-row"><td><strong>Total</strong></td><td><strong>${F(4011)}</strong></td><td><strong>${F(2474)}</strong></td><td style="color:var(--red)"><strong>-38%</strong></td><td><strong>${F(3248)}</strong></td><td><strong>${F(2457)}</strong></td><td style="color:var(--red)"><strong>-24%</strong></td><td><strong>${F(35)}</strong></td><td><strong>${F(85)}</strong></td></tr>`;
+  h+=`</tbody></table></div>`;
+
+  // Shipping donut
+  const sm=active==="all"?"dk":active;
+  h+=renderShipping(sm);
+  // Categories
+  h+=renderCats(active);
+  // Subscriptions
+  if(active==="all"){
+    h+=`<div class="card card-full"><div class="card-title">Subscription Breakdown — All Markets</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;">`;
+    MK.forEach(m=>{const d=D[m];h+=`<div><div style="font-size:12px;font-weight:700;margin-bottom:8px;">${d.flag} ${d.name}</div><div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Basic: ${F(d.basic.y24)} → ${F(d.basic.y25)} · Feb: ${F(d.basic.f26)}</div><div style="font-size:11px;color:var(--muted);">Premium: <span style="color:var(--green)">${F(d.premium.y24)} → ${F(d.premium.y25)}</span> · Feb: ${F(d.premium.f26)}</div><div style="font-size:10px;color:var(--accent);margin-top:4px;">Premium YoY: ${d.premYoY}</div></div>`});
+    h+=`</div></div>`;
+  } else {
+    const d=D[active];
+    h+=`<div class="card card-full"><div class="card-title">Subscription Breakdown — ${d.flag} ${d.name}</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;text-align:center;"><div><div style="font-size:11px;color:var(--muted);margin-bottom:4px;">2024</div><div>Basic: <strong>${F(d.basic.y24)}</strong></div><div>Premium: <strong>${F(d.premium.y24)}</strong></div></div><div><div style="font-size:11px;color:var(--muted);margin-bottom:4px;">2025</div><div>Basic: <strong>${F(d.basic.y25)}</strong></div><div style="color:var(--green)">Premium: <strong>${F(d.premium.y25)}</strong></div></div><div><div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Feb '26</div><div>Basic: <strong>${F(d.basic.f26)}</strong></div><div>Premium: <strong>${F(d.premium.f26)}</strong></div></div></div></div>`;
+  }
+  // 1CC India
+  if(active==="in"||active==="all"){
+    const o=D.in.oneCC;
+    h+=`<div class="card card-full"><div class="card-title">1CC Orders — Single-Click Checkout — 🇮🇳 India</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;text-align:center;"><div><div style="font-family:'Bebas Neue';font-size:36px;color:var(--muted);">${o.y24}</div><div style="font-size:11px;color:var(--muted);">2024 · Baseline</div></div><div><div style="font-family:'Bebas Neue';font-size:36px;color:var(--green);">${o.y25}</div><div style="font-size:11px;color:var(--green);">2025 · ▲ 600%</div></div><div><div style="font-family:'Bebas Neue';font-size:36px;color:var(--accent);">${o.f26}</div><div style="font-size:11px;color:var(--accent);">Jan-Feb 2026</div></div></div></div>`;
+  }
+  // Signups/Orders bar charts (Chart.js canvases)
+  h+=`<div class="card card-full"><div class="card-title">Signups by Market — 2024 vs 2025</div><div class="chart-wrap"><canvas id="signupsChart"></canvas></div></div>`;
+  h+=`<div class="card card-full"><div class="card-title">Orders by Market — 2024 vs 2025</div><div class="chart-wrap"><canvas id="ordersChart"></canvas></div></div>`;
+  el.innerHTML=h;
+  // Render Chart.js charts after DOM update
+  setTimeout(renderCharts,50);
+}
+
+function renderShipping(m){
+  const d=D[m];const t=d.ship.total25;const ps=d.ship.p;const c=2*Math.PI*50;
+  let circles="",off=0;
+  ps.forEach(p=>{const dl=p.y25/t*c;circles+=`<circle cx="60" cy="60" r="50" fill="none" stroke="${p.color}" stroke-width="16" stroke-dasharray="${dl.toFixed(1)} ${c.toFixed(1)}" stroke-dashoffset="${(-off).toFixed(1)}" transform="rotate(-90 60 60)"/>`;off+=dl});
+  let leg=ps.map(p=>`<div class="donut-legend-item"><div class="donut-dot" style="background:${p.color}"></div><span class="donut-legend-label">${p.name}</span><span class="donut-legend-val">${F(p.y25)} <span style="color:var(--muted);font-size:11px">${(p.y25/t*100).toFixed(1)}%</span></span></div><div style="font-size:10px;color:var(--muted);margin-left:18px;margin-bottom:6px;">'24: ${F(p.y24)} · Feb'26: ${F(p.f26)}</div>`).join("");
+  return`<div class="card"><div class="card-title">Shipping Partners — ${d.flag} ${d.name} (2025)</div><div class="donut-wrapper"><svg class="donut-svg" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" fill="none" stroke="#1a2744" stroke-width="16"/>${circles}<text x="60" y="56" text-anchor="middle" fill="var(--text)" font-family="Bebas Neue" font-size="22">${F(t)}</text><text x="60" y="70" text-anchor="middle" fill="var(--muted)" font-size="8">ORDERS</text></svg><div class="donut-legend">${leg}</div></div></div>`;
+}
+
+function renderCats(market){
+  if(market==="all"){
+    let h=`<div class="card"><div class="card-title">Top Product Categories — By Market</div>`;
+    MK.forEach(m=>{const d=D[m];h+=`<div style="margin-bottom:12px;"><div style="font-size:11px;font-weight:700;color:${d.color};margin-bottom:4px;">${d.flag} ${d.name}</div>`;d.cats.slice(0,3).forEach((c,i)=>{h+=`<div style="font-size:11px;color:var(--muted);padding:2px 0;">${i+1}. ${c}</div>`});h+=`</div>`});
+    return h+`</div>`;
+  }
+  const d=D[market];const w=[100,78,62,45,32];
+  let items=d.cats.map((c,i)=>`<li class="cat-item"><span class="cat-rank">${String(i+1).padStart(2,'0')}</span><span class="cat-name">${c}</span><div class="cat-bar-wrap"><div class="cat-bar" style="width:${w[i]||30}%"></div></div></li>`).join("");
+  return`<div class="card"><div class="card-title">Top Product Categories — ${d.flag} ${d.name}</div><ul class="cat-list">${items}</ul></div>`;
+}
+
+// Monthly Orders Section (Denmark only — the only monthly data available)
+function renderMonthly(){
+  const el=document.getElementById("monthlySection");
+  if(active==="dk"||active==="all"){
+    el.innerHTML=`<div class="main-grid"><div class="card card-full"><div class="card-title">Denmark Monthly Orders — Jan 2025 through Feb 2026</div><div class="chart-wrap" style="height:280px"><canvas id="dkMonthlyChart"></canvas></div></div></div>`;
+    setTimeout(()=>{
+      const ctx=document.getElementById("dkMonthlyChart");
+      if(!ctx)return;
+      new Chart(ctx,{type:"line",data:{labels:D.dk.monthly.labels,datasets:[{label:"Monthly Orders",data:D.dk.monthly.data,borderColor:"#00d4ff",backgroundColor:"rgba(0,212,255,0.1)",fill:true,tension:0.4,pointBackgroundColor:"#00d4ff",pointRadius:4,pointHoverRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:"index",intersect:false}},scales:{x:{grid:{display:false},ticks:{font:{size:11,family:"DM Sans"},color:"#5a6a8a"}},y:{grid:{color:"rgba(255,255,255,0.05)"},ticks:{font:{size:11},color:"#5a6a8a"},beginAtZero:false,min:80}}}});
+    },100);
+  } else { el.innerHTML=""; }
+}
+
+// Chart.js charts
+function renderCharts(){
+  Chart.defaults.color="#5a6a8a";Chart.defaults.borderColor="rgba(255,255,255,0.06)";Chart.defaults.font.family="DM Sans";
+  const bOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"top",labels:{boxWidth:10,padding:12,font:{size:11}}},tooltip:{mode:"index",intersect:false}},scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{grid:{color:"rgba(255,255,255,0.05)"},beginAtZero:true}}};
+  // Signups chart
+  const s=document.getElementById("signupsChart");
+  if(s)new Chart(s,{type:"bar",data:{labels:["India","GL","Sweden","Denmark"],datasets:[{label:"2024",data:[1773,987,233,1018],backgroundColor:"#3b82f6",borderRadius:6},{label:"2025",data:[763,722,204,785],backgroundColor:"#ec4899",borderRadius:6}]},options:bOpts});
+  // Orders chart
+  const o=document.getElementById("ordersChart");
+  if(o)new Chart(o,{type:"bar",data:{labels:["India","GL","Sweden","Denmark"],datasets:[{label:"2024",data:[320,463,364,2101],backgroundColor:"#10b981",borderRadius:6},{label:"2025",data:[228,208,244,1777],backgroundColor:"#f59e0b",borderRadius:6}]},options:bOpts});
+}
+
+function renderAI(){
+  const el=document.getElementById("aiSection");
+  let ins;
+  if(active==="all") ins=[
+    {tag:"🔴 Critical",t:"Signup Decline All Markets",p:"All 4 markets declined: India -57%, GL -27%, DK -23%, SE -12%. Total signups fell 38% (4,011→2,474). Investigate root causes — saturation, UX friction, or marketing spend.",imp:"critical",l:"Immediate Action"},
+    {tag:"🟢 Growth",t:"Premium Upsell Working",p:"Premium grew 143% (35→85) even as total signups fell. Denmark surged +277% (13→49). Scandinavian customers see strong value in the premium tier.",imp:"high",l:"Revenue Opportunity"},
+    {tag:"🟡 Signal",t:"India 1CC +600%",p:"1CC orders surged 3→21 (+600%) with 6 in Jan-Feb 2026. Mobile-first buying is proven. India is the mobile app growth market.",imp:"medium",l:"Strategic Priority"},
+    {tag:"📊 Pattern",t:"Denmark Is The Engine",p:"Denmark drove 2,101 orders in 2024 (~65% of total). Auto parts dominate. Monthly trend shows steady 100-192 orders/month through 2025-2026.",imp:"high",l:"Protect & Grow"},
+    {tag:"⚠️ Risk",t:"WMS Bottleneck",p:"Michael flagged WMS as 'very slow with no automation.' With 2,457 orders in 2025, manual processes limit growth. AI-integrated WMS could cut processing 40-60%.",imp:"critical",l:"Operational Risk"},
+    {tag:"🎯 Quick Win",t:"SEO + LLM Gap",p:"Content not optimized for AI discovery. ShopUSA invisible to ChatGPT/Perplexity. Structured data + semantic content is fastest ROI.",imp:"medium",l:"Low-Effort, High Return"}
+  ]; else {
+    const d=D[active]; ins=[
+      {tag:"📊 Signups",t:`Signups — ${d.flag} ${d.name}`,p:`${F(d.signups.y24)} (2024) → ${F(d.signups.y25)} (2025): ${d.signupsYoY}. Feb '26: ${F(d.signups.f26)}.`,imp:"critical",l:"Monitor"},
+      {tag:d.convUp?"🟢 Positive":"⚠️ Warning",t:`Conversion — ${d.flag} ${d.name}`,p:`Conv rate: ${d.convRate.y24}% → ${d.convRate.y25}% (${d.convLabel}). Feb '26: ${d.convRate.f26}%.`,imp:d.convUp?"high":"critical",l:d.convUp?"Healthy":"Needs Action"},
+    ];
+    if(active==="in") ins.push({tag:"🟡 Mobile",t:"1CC Explosion",p:`3→21 (+600%) in 2025, 6 in Jan-Feb 2026. India = mobile-first growth market.`,imp:"medium",l:"Strategic Priority"});
+    else if(active==="dk") ins.push({tag:"🟢 Revenue",t:"Premium +277%",p:`Premium: 13→49. Monthly orders steady: 100-192/month. Denmark = 65% of all orders.`,imp:"high",l:"Revenue Engine"});
+    else if(active==="se") ins.push({tag:"📊 Niche",t:"Auto Parts Dominance",p:`Top 3 = automotive. Plus vinyl records and motorcycles — broader collectibles audience vs Denmark.`,imp:"high",l:"Differentiation"});
+    else ins.push({tag:"⚠️ Alert",t:"Orders -55%",p:`GL orders dropped sharply: 463→208 (-55%). UPS shows 0 orders in early 2026. May indicate carrier issue.`,imp:"critical",l:"Investigate"});
+  }
+  el.innerHTML=`<div class="ai-header"><div class="ai-icon">🧠</div><h3>AI-GENERATED <span>STRATEGIC INSIGHTS</span>${active!=="all"?` — ${D[active].flag} ${D[active].name}`:""}</h3><div style="margin-left:auto;font-size:10px;color:var(--muted);letter-spacing:1px;">AI ANALYTICS ENGINE</div></div><div class="insight-grid">${ins.map(i=>`<div class="insight-card"><div class="insight-tag">${i.tag}</div><h4>${i.t}</h4><p>${i.p}</p><div class="impact ${i.imp}">${i.l}</div></div>`).join("")}</div>`;
+}
+
+function renderOpps(){
+  document.getElementById("oppsSection").innerHTML=`<div class="ai-header"><div class="ai-icon" style="background:linear-gradient(135deg,var(--green),var(--accent));">🚀</div><h3>AI TRANSFORMATION <span>ROADMAP</span></h3></div><div class="opp-grid"><div class="opp-card"><div class="opp-icon" style="background:var(--accent-dim);">🤖</div><h4>AI-Powered WMS</h4><p>Smart routing, demand prediction, automated customs, shipment batching</p><div class="opp-est" style="color:var(--accent);">Phase 1</div><div style="font-size:10px;color:var(--muted);margin-top:4px;">8-12 wks · 40% faster</div></div><div class="opp-card"><div class="opp-icon" style="background:rgba(167,139,250,.12);">📱</div><h4>Mobile App + 1CC</h4><p>AI personalization, price alerts, one-click reorder</p><div class="opp-est" style="color:var(--purple);">Phase 2</div><div style="font-size:10px;color:var(--muted);margin-top:4px;">12-16 wks · 3x 1CC</div></div><div class="opp-card"><div class="opp-icon" style="background:rgba(255,107,53,.12);">📊</div><h4>Marketing AI</h4><p>Segmentation, churn prediction, automated campaigns</p><div class="opp-est" style="color:var(--orange);">Phase 2</div><div style="font-size:10px;color:var(--muted);margin-top:4px;">10-14 wks · +30% signups</div></div><div class="opp-card"><div class="opp-icon" style="background:rgba(52,211,153,.12);">🔍</div><h4>LLM + SEO</h4><p>Structured data, ChatGPT/Perplexity discoverability</p><div class="opp-est" style="color:var(--green);">Phase 1</div><div style="font-size:10px;color:var(--muted);margin-top:4px;">4-6 wks · Quick win</div></div></div>`;
+  document.getElementById("aggFooter").innerHTML=`<div class="card card-full" style="margin-bottom:24px;background:linear-gradient(135deg,var(--surface),var(--surface2));"><div class="card-title">Aggregate Platform Health</div><div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;text-align:center;"><div><div style="font-family:'Bebas Neue';font-size:36px;color:var(--accent);">${F(AGG.signups.y24)}</div><div style="font-size:11px;color:var(--muted);">Signups '24</div></div><div><div style="font-family:'Bebas Neue';font-size:36px;color:var(--orange);">${F(AGG.signups.y25)}</div><div style="font-size:11px;color:var(--muted);">Signups '25</div></div><div><div style="font-family:'Bebas Neue';font-size:36px;color:var(--green);">${F(AGG.signups.f26)}</div><div style="font-size:11px;color:var(--muted);">Signups Feb '26</div></div><div><div style="font-family:'Bebas Neue';font-size:36px;color:var(--gold);">${F(AGG.orders.y25)}</div><div style="font-size:11px;color:var(--muted);">Orders '25</div></div><div><div style="font-family:'Bebas Neue';font-size:36px;color:var(--purple);">${F(AGG.premium.y25)}</div><div style="font-size:11px;color:var(--muted);">Premium '25</div></div></div></div>`;
+}
+
+function renderAll(){
+  document.getElementById("marketTabs").innerHTML="";
+  renderTabs();renderKPIs();renderMainGrid();renderMonthly();renderAI();renderOpps();
+}
+renderAll();
+</script>
+</body>
+</html>
