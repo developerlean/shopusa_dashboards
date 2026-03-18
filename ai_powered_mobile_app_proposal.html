@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopUSA — AI-Powered Mobile App Concept</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0d14;
+  --surface: #111622;
+  --accent: #00d4ff;
+  --green: #34d399;
+  --orange: #ff6b35;
+  --purple: #a78bfa;
+  --text: #e8edf7;
+  --muted: #5a6a8a;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:40px 20px; }
+
+.page-title { font-family:'Bebas Neue'; font-size:36px; letter-spacing:2px; text-align:center; margin-bottom:8px; }
+.page-title span { color:var(--accent); }
+.page-sub { font-size:14px; color:var(--muted); text-align:center; margin-bottom:40px; max-width:600px; }
+
+.phones { display:flex; gap:40px; flex-wrap:wrap; justify-content:center; align-items:flex-start; }
+
+.phone-wrapper { text-align:center; }
+.phone-label { font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:12px; font-weight:600; }
+
+.phone {
+  width:280px; height:560px; border-radius:32px;
+  background: #0f1520; border: 2px solid #1e2a42;
+  overflow:hidden; position:relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,.5), 0 0 40px rgba(0,212,255,.05);
+}
+.phone .notch {
+  width:120px; height:24px; background:#000; border-radius:0 0 16px 16px;
+  margin:0 auto; position:relative; z-index:10;
+}
+.phone .status-bar {
+  display:flex; justify-content:space-between; padding:4px 20px 0;
+  font-size:10px; color:var(--muted); margin-top:-20px;
+}
+
+.screen { padding:8px 16px; height:calc(100% - 32px); overflow-y:auto; }
+.screen::-webkit-scrollbar { display:none; }
+
+/* HOME SCREEN */
+.home-header { display:flex; justify-content:space-between; align-items:center; margin:12px 0 16px; }
+.home-header .greeting { font-size:18px; font-weight:700; }
+.home-header .greeting span { color:var(--accent); }
+.home-header .avatar { width:32px; height:32px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; color:#000; }
+
+.search-bar {
+  display:flex; align-items:center; gap:8px; padding:10px 14px;
+  background:#1a2744; border-radius:12px; margin-bottom:16px;
+}
+.search-bar .icon { color:var(--muted); font-size:14px; }
+.search-bar span { color:var(--muted); font-size:13px; }
+.search-bar .ai-badge { margin-left:auto; font-size:9px; background:var(--accent); color:#000; padding:2px 6px; border-radius:8px; font-weight:700; }
+
+.section-label { font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--accent); margin:12px 0 8px; font-weight:600; }
+
+.tracking-card {
+  background: linear-gradient(135deg, #1a2744, #162035);
+  border-radius:14px; padding:14px; margin-bottom:12px;
+  border: 1px solid #253456;
+}
+.tracking-card .route { font-size:11px; color:var(--muted); margin-bottom:6px; }
+.tracking-card .route span { color:var(--text); font-weight:700; }
+.tracking-card .status-row { display:flex; align-items:center; gap:8px; }
+.tracking-card .status-dot { width:8px; height:8px; border-radius:50%; background:var(--green); }
+.tracking-card .status-text { font-size:12px; color:var(--green); font-weight:600; }
+.tracking-card .eta { font-size:11px; color:var(--muted); margin-left:auto; }
+.tracking-card .progress { height:4px; background:#253456; border-radius:2px; margin-top:10px; overflow:hidden; }
+.tracking-card .progress-fill { height:100%; background:var(--green); border-radius:2px; }
+
+.rec-row { display:flex; gap:10px; overflow-x:auto; padding-bottom:8px; }
+.rec-card {
+  min-width:120px; background:#1a2744; border-radius:12px; padding:10px;
+  border:1px solid #253456;
+}
+.rec-card .rec-img { width:100%; height:70px; background:#253456; border-radius:8px; margin-bottom:6px; display:flex; align-items:center; justify-content:center; font-size:24px; }
+.rec-card .rec-name { font-size:11px; font-weight:600; margin-bottom:2px; }
+.rec-card .rec-price { font-size:10px; color:var(--accent); }
+
+.quick-actions { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:12px; }
+.quick-action {
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+  padding:10px 4px; background:#1a2744; border-radius:10px;
+  font-size:9px; color:var(--muted); text-align:center;
+}
+.quick-action .qa-icon { font-size:18px; }
+
+/* AI CHAT SCREEN */
+.chat-header { display:flex; align-items:center; gap:10px; margin:12px 0 16px; padding-bottom:12px; border-bottom:1px solid #1e2a42; }
+.chat-header .back { font-size:18px; color:var(--muted); }
+.chat-header .bot-avatar { width:32px; height:32px; border-radius:12px; background:linear-gradient(135deg,var(--purple),var(--accent)); display:flex; align-items:center; justify-content:center; font-size:16px; }
+.chat-header .bot-info h4 { font-size:14px; font-weight:700; }
+.chat-header .bot-info span { font-size:10px; color:var(--green); }
+
+.chat-bubble {
+  max-width:85%; padding:10px 14px; border-radius:14px;
+  font-size:12px; line-height:1.5; margin-bottom:8px;
+}
+.chat-bubble.bot { background:#1a2744; border-bottom-left-radius:4px; }
+.chat-bubble.user { background:var(--accent); color:#000; margin-left:auto; border-bottom-right-radius:4px; }
+.chat-bubble .highlight { background:rgba(0,212,255,.15); padding:2px 4px; border-radius:4px; }
+
+.chat-suggestion {
+  display:inline-block; padding:6px 12px; border-radius:20px;
+  background:#162035; border:1px solid #253456; font-size:10px;
+  color:var(--accent); margin:2px 4px 2px 0;
+}
+
+.chat-input {
+  display:flex; align-items:center; gap:8px; padding:10px 14px;
+  background:#1a2744; border-radius:20px; margin-top:auto;
+  position:absolute; bottom:16px; left:16px; right:16px;
+}
+.chat-input span { color:var(--muted); font-size:12px; flex:1; }
+.chat-input .send { width:28px; height:28px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:12px; }
+
+/* TRACKING DETAIL SCREEN */
+.detail-header { display:flex; align-items:center; gap:10px; margin:12px 0 16px; }
+.detail-header .back { font-size:18px; color:var(--muted); }
+.detail-header h3 { font-size:16px; font-weight:700; }
+
+.detail-card {
+  background:#1a2744; border-radius:14px; padding:16px; margin-bottom:12px;
+  border:1px solid #253456;
+}
+.detail-card h4 { font-size:13px; font-weight:700; margin-bottom:8px; }
+.detail-card .detail-row { display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px; }
+.detail-card .detail-row .label { color:var(--muted); }
+
+.timeline { padding-left:16px; border-left:2px solid #253456; }
+.timeline-item { position:relative; padding:0 0 16px 16px; }
+.timeline-item::before {
+  content:''; position:absolute; left:-7px; top:2px;
+  width:12px; height:12px; border-radius:50%; background:var(--accent);
+}
+.timeline-item.past::before { background:#253456; }
+.timeline-item .tl-time { font-size:10px; color:var(--muted); }
+.timeline-item .tl-event { font-size:12px; font-weight:600; }
+.timeline-item .tl-loc { font-size:10px; color:var(--muted); }
+
+.ai-prediction {
+  background:linear-gradient(135deg,rgba(167,139,250,.1),rgba(0,212,255,.1));
+  border:1px solid rgba(167,139,250,.3); border-radius:12px;
+  padding:12px; margin-bottom:12px;
+}
+.ai-prediction .pred-label { font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:var(--purple); font-weight:700; margin-bottom:4px; }
+.ai-prediction .pred-text { font-size:12px; line-height:1.5; }
+
+/* BOTTOM NAV */
+.bottom-nav {
+  display:flex; justify-content:space-around; padding:10px 0 6px;
+  border-top:1px solid #1e2a42; position:absolute; bottom:0; left:0; right:0;
+  background:#0f1520;
+}
+.nav-item { display:flex; flex-direction:column; align-items:center; gap:2px; font-size:9px; color:var(--muted); }
+.nav-item.active { color:var(--accent); }
+.nav-item .nav-icon { font-size:18px; }
+
+/* FEATURE LABEL */
+.feature-tag {
+  position:absolute; top:8px; right:8px;
+  font-size:8px; letter-spacing:1px; padding:3px 8px;
+  background:rgba(0,212,255,.15); color:var(--accent);
+  border-radius:10px; font-weight:700; text-transform:uppercase;
+}
+
+.annotation {
+  margin-top:12px; padding:12px 16px; background:#111622;
+  border:1px solid #1e2a42; border-radius:10px;
+  max-width:280px;
+}
+.annotation h5 { font-size:11px; color:var(--accent); font-weight:700; margin-bottom:4px; letter-spacing:0.5px; }
+.annotation p { font-size:10px; color:var(--muted); line-height:1.5; }
+</style>
+</head>
+<body>
+
+<div class="page-title">SHOP<span>USA</span> — AI-POWERED APP CONCEPT</div>
+<p class="page-sub">Three key screens showing how AI transforms the ShopUSA mobile experience: personalized home, intelligent tracking with predictions, and AI chat support.</p>
+
+<div class="phones">
+
+<!-- PHONE 1: HOME SCREEN -->
+<div class="phone-wrapper">
+  <div class="phone-label">Home — AI Personalization</div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="status-bar"><span>9:41</span><span>5G ▪ 🔋</span></div>
+    <div class="screen">
+      <div class="home-header">
+        <div class="greeting">Hello, <span>Anders</span> 👋</div>
+        <div class="avatar">A</div>
+      </div>
+      
+      <div class="search-bar">
+        <span class="icon">🔍</span>
+        <span>Search any US product...</span>
+        <span class="ai-badge">AI</span>
+      </div>
+
+      <div class="section-label">📦 Active Shipments</div>
+      <div class="tracking-card">
+        <div class="route">🇺🇸 Portland → <span>🇩🇰 Copenhagen</span></div>
+        <div class="status-row">
+          <div class="status-dot"></div>
+          <div class="status-text">In Transit — Fly</div>
+          <div class="eta">ETA: Mar 19</div>
+        </div>
+        <div class="progress"><div class="progress-fill" style="width:72%"></div></div>
+      </div>
+
+      <div class="section-label">🤖 AI Picks for You</div>
+      <div class="rec-row">
+        <div class="rec-card">
+          <div class="rec-img">🔧</div>
+          <div class="rec-name">Ford '67 Bumper</div>
+          <div class="rec-price">$189 · eBay</div>
+        </div>
+        <div class="rec-card">
+          <div class="rec-img">⚙️</div>
+          <div class="rec-name">Chevy Valve Cover</div>
+          <div class="rec-price">$45 · Amazon</div>
+        </div>
+        <div class="rec-card">
+          <div class="rec-img">📖</div>
+          <div class="rec-name">Haynes Manual</div>
+          <div class="rec-price">$29 · Barnes</div>
+        </div>
+      </div>
+
+      <div class="section-label">⚡ Quick Actions</div>
+      <div class="quick-actions">
+        <div class="quick-action"><span class="qa-icon">📦</span>Track</div>
+        <div class="quick-action"><span class="qa-icon">🔄</span>Reorder</div>
+        <div class="quick-action"><span class="qa-icon">💰</span>Deals</div>
+        <div class="quick-action"><span class="qa-icon">🤖</span>AI Help</div>
+      </div>
+
+      <div class="section-label">🔥 Price Drop Alerts</div>
+      <div class="tracking-card">
+        <div style="font-size:12px;font-weight:600;">GPU RTX 4070 dropped 23%</div>
+        <div style="font-size:11px;color:var(--green);margin-top:4px;">Now $449 · Was $579 · Newegg</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px;">Based on your watchlist · 1-click order →</div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item active"><span class="nav-icon">🏠</span>Home</div>
+      <div class="nav-item"><span class="nav-icon">📦</span>Track</div>
+      <div class="nav-item"><span class="nav-icon">🔍</span>Shop</div>
+      <div class="nav-item"><span class="nav-icon">🤖</span>AI Chat</div>
+      <div class="nav-item"><span class="nav-icon">👤</span>Profile</div>
+    </div>
+  </div>
+  <div class="annotation">
+    <h5>AI Features on Home</h5>
+    <p>AI-powered product recs based on purchase history (auto parts focus for DK users). Price drop alerts on watchlisted items. Smart search with natural language.</p>
+  </div>
+</div>
+
+<!-- PHONE 2: AI CHAT -->
+<div class="phone-wrapper">
+  <div class="phone-label">AI Chat Support</div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="status-bar"><span>9:42</span><span>5G ▪ 🔋</span></div>
+    <div class="screen" style="padding-bottom:60px;">
+      <div class="chat-header">
+        <span class="back">←</span>
+        <div class="bot-avatar">🤖</div>
+        <div class="bot-info">
+          <h4>ShopUSA AI</h4>
+          <span>● Online · Responds instantly</span>
+        </div>
+      </div>
+
+      <div class="chat-bubble bot">Hi Anders! I'm your ShopUSA AI assistant. I can help with shipping, customs, product search, and more. How can I help? 🚀</div>
+
+      <div class="chat-bubble user">Will I need to pay customs on my car parts shipment?</div>
+
+      <div class="chat-bubble bot">Great question! For your current shipment (Ford bumper, $189 + $45 valve cover = <span class="highlight">$234 total</span>):<br><br>🇩🇰 Denmark customs:<br>• VAT: 25% = ~$58.50<br>• Duty: Auto parts = 3.5% = ~$8.19<br><br>Estimated total customs: <span class="highlight">~$66.69</span><br><br>I've pre-filled your customs declaration. Want me to submit it?</div>
+
+      <div class="chat-bubble user">Yes please! Also, any cheaper shipping option?</div>
+
+      <div class="chat-bubble bot">Done! ✅ Declaration submitted.<br><br>For shipping, here are your options:<br>• 🛩️ Fly: $42 · 4-6 days (current)<br>• 🚢 Ocean: $18 · 12-18 days<br>• ⚡ Express: $67 · 2-3 days<br><br>Since these aren't urgent, Ocean could save you <span class="highlight">$24 per shipment</span>.</div>
+
+      <div style="margin:8px 0;">
+        <span class="chat-suggestion">Switch to Ocean</span>
+        <span class="chat-suggestion">Keep Fly</span>
+        <span class="chat-suggestion">Track my package</span>
+      </div>
+    </div>
+    <div class="chat-input">
+      <span>Ask anything about shipping...</span>
+      <div class="send">↑</div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item"><span class="nav-icon">🏠</span>Home</div>
+      <div class="nav-item"><span class="nav-icon">📦</span>Track</div>
+      <div class="nav-item"><span class="nav-icon">🔍</span>Shop</div>
+      <div class="nav-item active"><span class="nav-icon">🤖</span>AI Chat</div>
+      <div class="nav-item"><span class="nav-icon">👤</span>Profile</div>
+    </div>
+  </div>
+  <div class="annotation">
+    <h5>AI Chat Capabilities</h5>
+    <p>Auto customs calculation based on shipment contents. Shipping comparisons with cost savings. Pre-filled declarations. Natural language Q&A about duties, delivery, and products.</p>
+  </div>
+</div>
+
+<!-- PHONE 3: TRACKING WITH AI PREDICTIONS -->
+<div class="phone-wrapper">
+  <div class="phone-label">Smart Tracking + AI Predictions</div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="status-bar"><span>9:43</span><span>5G ▪ 🔋</span></div>
+    <div class="screen">
+      <div class="detail-header">
+        <span class="back">←</span>
+        <h3>Shipment #SU-28491</h3>
+      </div>
+
+      <div class="ai-prediction">
+        <div class="pred-label">🧠 AI Prediction</div>
+        <div class="pred-text">Based on current route and weather patterns, your package will arrive <strong style="color:var(--green)">1 day early</strong> (Mar 18 instead of Mar 19). Copenhagen customs is currently processing within 2hrs.</div>
+      </div>
+
+      <div class="detail-card">
+        <h4>Shipment Details</h4>
+        <div class="detail-row"><span class="label">Items</span><span>Ford '67 Bumper + Valve Cover</span></div>
+        <div class="detail-row"><span class="label">Weight</span><span>8.2 kg</span></div>
+        <div class="detail-row"><span class="label">Method</span><span>🛩️ Fly (Air)</span></div>
+        <div class="detail-row"><span class="label">Customs</span><span style="color:var(--green)">Pre-cleared ✓</span></div>
+        <div class="detail-row"><span class="label">Est. Duty</span><span>$66.69 DKK</span></div>
+      </div>
+
+      <div class="section-label">📍 Tracking Timeline</div>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="tl-time">Mar 17, 14:30</div>
+          <div class="tl-event">Departed US Hub</div>
+          <div class="tl-loc">Portland, OR → In transit</div>
+        </div>
+        <div class="timeline-item">
+          <div class="tl-time">Mar 16, 09:15</div>
+          <div class="tl-event">Customs Docs Submitted</div>
+          <div class="tl-loc">Auto-generated by AI</div>
+        </div>
+        <div class="timeline-item past">
+          <div class="tl-time">Mar 15, 16:42</div>
+          <div class="tl-event">Package Consolidated</div>
+          <div class="tl-loc">ShopUSA Warehouse, OR</div>
+        </div>
+        <div class="timeline-item past">
+          <div class="tl-time">Mar 14, 11:20</div>
+          <div class="tl-event">Received at Warehouse</div>
+          <div class="tl-loc">2 items from 2 retailers</div>
+        </div>
+        <div class="timeline-item past">
+          <div class="tl-time">Mar 12</div>
+          <div class="tl-event">Order Placed</div>
+          <div class="tl-loc">eBay + Amazon</div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item"><span class="nav-icon">🏠</span>Home</div>
+      <div class="nav-item active"><span class="nav-icon">📦</span>Track</div>
+      <div class="nav-item"><span class="nav-icon">🔍</span>Shop</div>
+      <div class="nav-item"><span class="nav-icon">🤖</span>AI Chat</div>
+      <div class="nav-item"><span class="nav-icon">👤</span>Profile</div>
+    </div>
+  </div>
+  <div class="annotation">
+    <h5>AI-Enhanced Tracking</h5>
+    <p>Predictive ETA using weather + customs data. Auto-generated customs declarations. Real-time tracking with AI-powered arrival forecasting. Pre-cleared customs for faster delivery.</p>
+  </div>
+</div>
+
+</div>
+
+<div style="max-width:900px;margin:40px auto 0;text-align:center;">
+  <div style="font-family:'Bebas Neue';font-size:22px;color:var(--accent);letter-spacing:2px;margin-bottom:8px;">APP CONCEPT — BUILT WITH AI FROM INDIA</div>
+  <p style="font-size:12px;color:var(--muted);line-height:1.6;">This concept demonstrates how AI can transform every touchpoint of the ShopUSA experience — from personalized product discovery to intelligent tracking predictions to automated customs handling. Development estimated at 12-16 weeks with the India team.</p>
+</div>
+
+</body>
+</html>
