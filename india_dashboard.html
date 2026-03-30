@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopUSA India — Executive Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #070b14;
+    --surface: #0e1524;
+    --surface2: #141d30;
+    --border: #1e2d4a;
+    --border2: #243450;
+    --text: #e8edf5;
+    --muted: #6b7fa3;
+    --accent: #3b82f6;
+    --accent2: #06b6d4;
+    --green: #22c55e;
+    --red: #ef4444;
+    --orange: #f97316;
+    --yellow: #eab308;
+    --purple: #a855f7;
+    --ups: #4f46e5;
+    --fedex: #f97316;
+    --gold: #f59e0b;
+    --glow: rgba(59,130,246,0.12);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper { position: relative; z-index: 1; max-width: 1440px; margin: 0 auto; padding: 0 28px 60px; }
+
+  /* HEADER */
+  .header {
+    padding: 36px 0 28px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 36px;
+  }
+  .header-left { display: flex; flex-direction: column; gap: 6px; }
+  .brand {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    opacity: 0.8;
+  }
+  .title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 46px;
+    letter-spacing: 2px;
+    line-height: 1;
+    background: linear-gradient(135deg, #e8edf5 0%, #6b9ed8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .subtitle { color: var(--muted); font-size: 13px; font-weight: 400; letter-spacing: 0.5px; }
+  .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+  .date-badge {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    letter-spacing: 1px;
+  }
+  .period-badge {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    width: fit-content;
+  }
+  .tab {
+    padding: 8px 20px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--muted);
+    letter-spacing: 0.3px;
+    border: none;
+    background: transparent;
+  }
+  .tab:hover { color: var(--text); background: var(--surface2); }
+  .tab.active { background: var(--accent); color: #fff; }
+
+  /* SECTION PANELS */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* KPI GRID */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 18px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+    opacity: 0.6;
+  }
+  .kpi-card.green::before { background: var(--green); }
+  .kpi-card.red::before { background: var(--red); }
+  .kpi-card.orange::before { background: var(--orange); }
+  .kpi-card.purple::before { background: var(--purple); }
+  .kpi-card.gold::before { background: var(--gold); }
+  .kpi-card:hover { border-color: var(--border2); }
+  .kpi-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .kpi-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 34px;
+    letter-spacing: 1px;
+    line-height: 1;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  .kpi-value.green { color: var(--green); }
+  .kpi-value.red { color: var(--red); }
+  .kpi-sub { font-size: 11px; color: var(--muted); }
+  .kpi-flag { display: inline-flex; align-items: center; gap: 4px; background: rgba(239,68,68,0.12); color: var(--red); border: 1px solid rgba(239,68,68,0.25); border-radius: 4px; padding: 2px 7px; font-size: 10px; font-weight: 600; margin-top: 4px; }
+
+  /* SECTION HEADER */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1.5px;
+    color: var(--text);
+  }
+  .section-line { flex: 1; height: 1px; background: var(--border); }
+
+  /* CHART GRID */
+  .chart-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .chart-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .chart-grid-full { margin-bottom: 20px; }
+
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 22px 18px;
+  }
+  .chart-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .chart-tag {
+    font-size: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    color: var(--muted);
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .chart-container { position: relative; }
+  .chart-h240 { height: 240px; }
+  .chart-h200 { height: 200px; }
+  .chart-h280 { height: 280px; }
+  .chart-h320 { height: 320px; }
+
+  /* INSIGHT PILLS */
+  .insight-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  .insight {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 13px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .insight.warn { background: rgba(249,115,22,0.1); border: 1px solid rgba(249,115,22,0.25); color: #fb923c; }
+  .insight.danger { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); color: #f87171; }
+  .insight.good { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.25); color: #4ade80; }
+  .insight.info { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.25); color: #60a5fa; }
+  .insight-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
+  /* TABLE */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+  }
+  .data-table th {
+    text-align: left;
+    padding: 9px 14px;
+    font-size: 10.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .data-table td {
+    padding: 9px 14px;
+    border-bottom: 1px solid rgba(30,45,74,0.5);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: rgba(59,130,246,0.04); }
+  .data-table .total-row td { font-weight: 700; color: var(--accent2); background: rgba(6,182,212,0.06); border-top: 1px solid var(--border2); }
+  .data-table .neg { color: var(--red); }
+  .data-table .pos { color: var(--green); }
+
+  /* CARRIER BADGE */
+  .carrier-ups { color: var(--ups); font-weight: 700; }
+  .carrier-fedex { color: var(--fedex); font-weight: 700; }
+
+  /* MONTH SELECTOR */
+  .month-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+  .month-btn {
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .month-btn:hover { color: var(--text); border-color: var(--border2); }
+  .month-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .month-btn.y2026 { border-color: rgba(168,85,247,0.4); color: var(--purple); }
+  .month-btn.y2026.active { background: var(--purple); border-color: var(--purple); color: #fff; }
+
+  /* CATEGORY BUBBLES */
+  .cat-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .cat-bubble {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+  }
+  .cat-count {
+    background: var(--accent);
+    color: #fff;
+    border-radius: 10px;
+    padding: 1px 7px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* LEGEND */
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  /* SPLIT STAT */
+  .split-stat { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .split-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .split-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 4px; }
+  .split-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    line-height: 1;
+  }
+  .split-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* YEAR TOGGLE */
+  .year-toggle { display: flex; gap: 4px; }
+  .ytoggle-btn {
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .ytoggle-btn.active { background: var(--surface2); color: var(--text); border-color: var(--border2); }
+
+  .flag-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 10px;
+    color: var(--red);
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .note {
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 14px;
+    margin-top: 12px;
+  }
+
+  @media (max-width: 1100px) {
+    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+    .chart-grid-3 { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 760px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .chart-grid-2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-left">
+      <div class="brand">SHOPUSA · MARKET INTELLIGENCE</div>
+      <div class="title">INDIA DASHBOARD</div>
+      <div class="subtitle">Signups · Orders · Revenue · Carrier Fees · Categories</div>
+    </div>
+    <div class="header-right">
+      <div class="date-badge">PREPARED: MAR 2026</div>
+      <div class="period-badge">Coverage: Jan 2025 — Mar 2026 (15 months)</div>
+    </div>
+  </header>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab" onclick="switchTab('signups')">Signups</button>
+    <button class="tab" onclick="switchTab('orders')">Orders & Revenue</button>
+    <button class="tab" onclick="switchTab('fees')">Carrier Fees</button>
+    <button class="tab" onclick="switchTab('categories')">Categories</button>
+  </div>
+
+  <!-- ====================== OVERVIEW ====================== -->
+  <div class="section active" id="tab-overview">
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card blue">
+        <div class="kpi-label">Total Signups (All)</div>
+        <div class="kpi-value">846</div>
+        <div class="kpi-sub">Basic: 846 · Premium: 4</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">Total Orders</div>
+        <div class="kpi-value">264</div>
+        <div class="kpi-sub">UPS: 88 · FedEx: 176</div>
+      </div>
+      <div class="kpi-card gold">
+        <div class="kpi-label">Total CC Amount</div>
+        <div class="kpi-value">$45,636</div>
+        <div class="kpi-sub">Gross revenue collected</div>
+      </div>
+      <div class="kpi-card orange">
+        <div class="kpi-label">Carrier Fees Paid</div>
+        <div class="kpi-value">$27,626</div>
+        <div class="kpi-sub">UPS + FedEx negotiated</div>
+      </div>
+      <div class="kpi-card purple">
+        <div class="kpi-label">Net Retained</div>
+        <div class="kpi-value green">$18,010</div>
+        <div class="kpi-sub">After carrier charges</div>
+      </div>
+    </div>
+
+    <!-- Insight pills -->
+    <div class="insight-bar">
+      <div class="insight danger"><div class="insight-dot"></div>Premium conversion critically low — only 4 conversions in 15 months (0.47%)</div>
+      <div class="insight warn"><div class="insight-dot"></div>26 flagged $1CC orders — spike in Oct–Dec 2025 (+9)</div>
+      <div class="insight warn"><div class="insight-dot"></div>UPS data missing from Dec 2025 onwards — zero orders recorded</div>
+      <div class="insight good"><div class="insight-dot"></div>Net margin 39.5% — $18K retained of $45.6K gross</div>
+      <div class="insight info"><div class="insight-dot"></div>FedEx dominant carrier: 176 orders vs UPS 88 (67% share)</div>
+    </div>
+
+    <!-- Overview Charts Row 1 -->
+    <div class="chart-grid-2">
+      <div class="chart-card">
+        <div class="chart-title">Monthly Signups (Basic + Premium) <span class="chart-tag">Jan 2025 – Mar 2026</span></div>
+        <div class="chart-container chart-h280"><canvas id="overviewSignups"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Monthly Orders by Carrier <span class="chart-tag">UPS vs FedEx</span></div>
+        <div class="chart-container chart-h280"><canvas id="overviewOrders"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Overview Charts Row 2 -->
+    <div class="chart-grid-3">
+      <div class="chart-card">
+        <div class="chart-title">Revenue vs Fees vs Net <span class="chart-tag">Monthly</span></div>
+        <div class="chart-container chart-h240"><canvas id="overviewRevenueFees"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Carrier Split <span class="chart-tag">Order Count %</span></div>
+        <div class="chart-container chart-h240"><canvas id="overviewCarrierPie"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">$1CC Flagged Orders <span class="chart-tag">Risk Monitor</span></div>
+        <div class="chart-container chart-h240"><canvas id="overviewFlagged"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Monthly Summary Table -->
+    <div class="chart-card">
+      <div class="chart-title">Full Monthly Summary Table <span class="chart-tag">All Metrics · Jan 2025 – Mar 2026</span></div>
+      <div style="overflow-x:auto;margin-top:8px;">
+        <table class="data-table" id="fullSummaryTable"></table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ====================== SIGNUPS ====================== -->
+  <div class="section" id="tab-signups">
+    <div class="kpi-grid">
+      <div class="kpi-card blue">
+        <div class="kpi-label">Total Basic Signups</div>
+        <div class="kpi-value">846</div>
+        <div class="kpi-sub">Jan 2025 – Mar 2026</div>
+      </div>
+      <div class="kpi-card red">
+        <div class="kpi-label">Total Premium Signups</div>
+        <div class="kpi-value red">4</div>
+        <div class="kpi-sub">Out of 846 basics</div>
+        <div class="kpi-flag">⚠ 0.47% conversion</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">2025 Basic Total</div>
+        <div class="kpi-value">728</div>
+        <div class="kpi-sub">Avg 60.7/month</div>
+      </div>
+      <div class="kpi-card orange">
+        <div class="kpi-label">2026 Basic (3 months)</div>
+        <div class="kpi-value">118</div>
+        <div class="kpi-sub">Avg 39.3/month ↓</div>
+      </div>
+      <div class="kpi-card purple">
+        <div class="kpi-label">Best Month</div>
+        <div class="kpi-value">93</div>
+        <div class="kpi-sub">Jan 2025 (Sheet2 raw)</div>
+      </div>
+    </div>
+
+    <div class="insight-bar">
+      <div class="insight danger"><div class="insight-dot"></div>Premium sign-up rate is critically low at 0.47% — revenue growth risk</div>
+      <div class="insight warn"><div class="insight-dot"></div>2026 monthly avg (39.3) down 35% vs 2025 avg (60.7) — declining acquisition</div>
+      <div class="insight info"><div class="insight-dot"></div>Premium events: Feb, Sep, Nov, Dec 2025 (1 each month)</div>
+    </div>
+
+    <div class="chart-grid-2">
+      <div class="chart-card">
+        <div class="chart-title">Basic Signups — Monthly Trend <span class="chart-tag">15 months</span></div>
+        <div class="chart-container chart-h280"><canvas id="basicTrend"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Basic vs Premium Monthly <span class="chart-tag">Stacked</span></div>
+        <div class="chart-container chart-h280"><canvas id="basicPremiumStacked"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-grid-3">
+      <div class="chart-card" style="grid-column:span 2">
+        <div class="chart-title">Year-over-Year: Basic Signups <span class="chart-tag">2025 vs 2026 comparable months</span></div>
+        <div class="chart-container chart-h240"><canvas id="yoySignups"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Signup Distribution</div>
+        <div style="margin-top:16px;">
+          <div class="split-stat">
+            <div class="split-box">
+              <div class="split-label">2025 Total</div>
+              <div class="split-value" style="color:var(--accent)">728</div>
+              <div class="split-sub">86% of all signups</div>
+            </div>
+            <div class="split-box">
+              <div class="split-label">2026 (3m)</div>
+              <div class="split-value" style="color:var(--purple)">118</div>
+              <div class="split-sub">14% of all signups</div>
+            </div>
+          </div>
+          <div style="margin-top:12px;" class="split-stat">
+            <div class="split-box">
+              <div class="split-label">Basic</div>
+              <div class="split-value" style="color:var(--green)">846</div>
+              <div class="split-sub">99.5% of total</div>
+            </div>
+            <div class="split-box">
+              <div class="split-label">Premium</div>
+              <div class="split-value" style="color:var(--red)">4</div>
+              <div class="split-sub">0.5% of total</div>
+            </div>
+          </div>
+        </div>
+        <div class="note">⚠ Premium members generate recurring subscription revenue. Target: 5–10% conversion rate.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================== ORDERS & REVENUE ====================== -->
+  <div class="section" id="tab-orders">
+    <div class="kpi-grid">
+      <div class="kpi-card blue">
+        <div class="kpi-label">Total Orders</div>
+        <div class="kpi-value">264</div>
+        <div class="kpi-sub">2025: 227 · 2026: 37</div>
+      </div>
+      <div class="kpi-card gold">
+        <div class="kpi-label">Gross CC Revenue</div>
+        <div class="kpi-value">$45,636</div>
+        <div class="kpi-sub">2025: $39,547 · 2026: $6,089</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">Avg Order Value</div>
+        <div class="kpi-value">$173</div>
+        <div class="kpi-sub">Per order (all-time)</div>
+      </div>
+      <div class="kpi-card red">
+        <div class="kpi-label">$1CC Orders</div>
+        <div class="kpi-value red">26</div>
+        <div class="kpi-sub">9.8% of total orders</div>
+        <div class="kpi-flag">⚠ Risk Flag</div>
+      </div>
+      <div class="kpi-card orange">
+        <div class="kpi-label">UPS / FedEx Split</div>
+        <div class="kpi-value">33/67%</div>
+        <div class="kpi-sub">UPS 88 · FedEx 176</div>
+      </div>
+    </div>
+
+    <div class="insight-bar">
+      <div class="insight warn"><div class="insight-dot"></div>Feb 2025: 11 orders noted at $3,400 CC — used as data reference note in source</div>
+      <div class="insight danger"><div class="insight-dot"></div>UPS: ZERO orders recorded Dec 2025–Mar 2026 — possible data gap or service halt</div>
+      <div class="insight warn"><div class="insight-dot"></div>Jun 2025: FedEx spike to 26 orders ($4,837) — investigate volume driver</div>
+      <div class="insight good"><div class="insight-dot"></div>Mar 2025 peak month: $6,157 total CC — highest revenue month</div>
+    </div>
+
+    <div class="chart-grid-2">
+      <div class="chart-card">
+        <div class="chart-title">Monthly Order Count — UPS vs FedEx <span class="chart-tag">Stacked Bar</span></div>
+        <div class="chart-container chart-h280"><canvas id="ordersCountStacked"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Monthly CC Revenue — UPS vs FedEx <span class="chart-tag">$USD</span></div>
+        <div class="chart-container chart-h280"><canvas id="ordersRevenue"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-grid-3">
+      <div class="chart-card" style="grid-column:span 2">
+        <div class="chart-title">Total CC Revenue vs Net Retained <span class="chart-tag">Monthly P&L View</span></div>
+        <div class="chart-container chart-h240"><canvas id="revenueVsNet"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">$1CC Flagged Orders <span class="chart-tag">Risk by Month</span></div>
+        <div class="chart-container chart-h240"><canvas id="flaggedBar"></canvas></div>
+        <div class="note">⚠ $1CC = orders placed with $1 charge only. High count signals potential abuse or test orders impacting data.</div>
+      </div>
+    </div>
+
+    <!-- Revenue Table -->
+    <div class="chart-card">
+      <div class="chart-title">Revenue Detail Table — UPS & FedEx CC + Fees + Net <span class="chart-tag">Full Breakdown</span></div>
+      <div style="overflow-x:auto;margin-top:8px;">
+        <table class="data-table" id="revenueTable"></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================== CARRIER FEES ====================== -->
+  <div class="section" id="tab-fees">
+    <div class="kpi-grid">
+      <div class="kpi-card orange">
+        <div class="kpi-label">Total Carrier Fees</div>
+        <div class="kpi-value">$27,626</div>
+        <div class="kpi-sub">UPS + FedEx negotiated</div>
+      </div>
+      <div class="kpi-card blue">
+        <div class="kpi-label">UPS Total Fees</div>
+        <div class="kpi-value">$10,978</div>
+        <div class="kpi-sub">Jan–Nov 2025</div>
+      </div>
+      <div class="kpi-card fedex" style="--fedex:#f97316;">
+        <div class="kpi-label">FedEx Total Fees</div>
+        <div class="kpi-value">$16,648</div>
+        <div class="kpi-sub">Jan 2025 – Mar 2026</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">Net Retained</div>
+        <div class="kpi-value green">$18,010</div>
+        <div class="kpi-sub">Margin: 39.5%</div>
+      </div>
+      <div class="kpi-card purple">
+        <div class="kpi-label">Avg Fee/Order</div>
+        <div class="kpi-value">$104.6</div>
+        <div class="kpi-sub">$27,626 ÷ 264 orders</div>
+      </div>
+    </div>
+
+    <div class="insight-bar">
+      <div class="insight info"><div class="insight-dot"></div>Negotiated rates avg 60.5% of CC amount — 39.5% retained as net</div>
+      <div class="insight warn"><div class="insight-dot"></div>Jun 2025: FedEx fees $2,992 — highest single carrier single month</div>
+      <div class="insight warn"><div class="insight-dot"></div>Nov 2025: Net margin went negative (-$9.72) — cost exceeded revenue</div>
+      <div class="insight good"><div class="insight-dot"></div>Mar 2025 best net: $2,902 retained from $6,157 collected (47.1%)</div>
+    </div>
+
+    <div class="chart-grid-2">
+      <div class="chart-card">
+        <div class="chart-title">Monthly Carrier Fees — UPS vs FedEx <span class="chart-tag">Negotiated Charges $USD</span></div>
+        <div class="chart-container chart-h280"><canvas id="feesStacked"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">CC Collected vs Fees Paid vs Net <span class="chart-tag">Monthly Waterfall View</span></div>
+        <div class="chart-container chart-h280"><canvas id="waterfallChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-card chart-grid-full">
+      <div class="chart-title">Fee Efficiency Ratio — % of CC kept as Net <span class="chart-tag">Monthly Net Margin %</span></div>
+      <div class="chart-container chart-h240"><canvas id="marginRatio"></canvas></div>
+    </div>
+
+    <!-- Fees Table -->
+    <div class="chart-card">
+      <div class="chart-title">Full Fees & Net Retained Table <span class="chart-tag">Jan 2025 – Mar 2026</span></div>
+      <div style="overflow-x:auto;margin-top:8px;">
+        <table class="data-table" id="feesTable"></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================== CATEGORIES ====================== -->
+  <div class="section" id="tab-categories">
+    <div class="kpi-grid">
+      <div class="kpi-card blue">
+        <div class="kpi-label">Top Category (2025)</div>
+        <div class="kpi-value" style="font-size:26px;">Electronics</div>
+        <div class="kpi-sub">Most frequent across months</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">Top Category (2026)</div>
+        <div class="kpi-value" style="font-size:26px;">Electronics</div>
+        <div class="kpi-sub">Consistent #1</div>
+      </div>
+      <div class="kpi-card orange">
+        <div class="kpi-label">Categories Tracked</div>
+        <div class="kpi-value">12+</div>
+        <div class="kpi-sub">Electronics, Health, Office…</div>
+      </div>
+      <div class="kpi-card purple">
+        <div class="kpi-label">Months Tracked</div>
+        <div class="kpi-value">15</div>
+        <div class="kpi-sub">Top 5 per month</div>
+      </div>
+      <div class="kpi-card gold">
+        <div class="kpi-label">Highest Single Cat. (month)</div>
+        <div class="kpi-value">12</div>
+        <div class="kpi-sub">Electronics · Mar 2025</div>
+      </div>
+    </div>
+
+    <div class="insight-bar">
+      <div class="insight good"><div class="insight-dot"></div>Electronics dominates: top category in 9 of 15 months</div>
+      <div class="insight info"><div class="insight-dot"></div>Health & Accessories consistently rank 2nd–3rd across months</div>
+      <div class="insight info"><div class="insight-dot"></div>Office products strong in May, Oct 2025 — potential B2B segment</div>
+      <div class="insight warn"><div class="insight-dot"></div>2026 monthly volumes low (1–3 per category) — order decline reflected here too</div>
+    </div>
+
+    <div class="chart-grid-2">
+      <div class="chart-card">
+        <div class="chart-title">Aggregate Category Frequency <span class="chart-tag">All 15 months · Top 5 per month counted</span></div>
+        <div class="chart-container chart-h280"><canvas id="catFrequency"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Monthly Category Browser <span class="chart-tag">Select a month</span></div>
+        <div id="monthSelectorCat" class="month-selector"></div>
+        <div id="catBubbles" class="cat-grid" style="margin-top:12px;"></div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">Category Heatmap — Monthly Count by Category <span class="chart-tag">2025–2026</span></div>
+      <div style="overflow-x:auto;margin-top:8px;">
+        <table class="data-table" id="catHeatTable"></table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const MONTHS_2025 = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTHS_2026 = ['Jan','Feb','Mar'];
+const ALL_MONTHS = [...MONTHS_2025.map(m=>m+' \'25'), ...MONTHS_2026.map(m=>m+' \'26')];
+
+const basic2025   = [82,73,71,62,77,70,70,50,30,49,50,44];
+const premium2025 = [0,1,0,0,0,0,0,0,1,0,1,1];
+const basic2026   = [45,43,30];
+const premium2026 = [0,0,0];
+const allBasic    = [...basic2025, ...basic2026];
+const allPremium  = [...premium2025, ...premium2026];
+
+const upsOrders2025   = [8,13,14,11,7,1,10,7,5,10,2,0];
+const fedexOrders2025 = [17,9,17,14,12,26,7,7,5,2,9,14];
+const upsOrders2026   = [0,0,0];
+const fedexOrders2026 = [17,12,8];
+const allUpsOrders    = [...upsOrders2025, ...upsOrders2026];
+const allFedexOrders  = [...fedexOrders2025, ...fedexOrders2026];
+
+const upsCC2025   = [1988.76,2646.34,4018.75,2611.04,2143.92,231.52,2527.66,1552.79,1439.24,782.13,71,0];
+const fedexCC2025 = [3119.55,1243.39,2139.12,2225.72,1725.93,4837.08,823.05,889.5,121,66,953.22,1390.76];
+const upsCC2026   = [0,0,0];
+const fedexCC2026 = [2235.29,2517.66,1335.96];
+const allUpsCC    = [...upsCC2025, ...upsCC2026];
+const allFedexCC  = [...fedexCC2025, ...fedexCC2026];
+const allTotalCC  = ALL_MONTHS.map((_,i)=>allUpsCC[i]+allFedexCC[i]);
+
+const upsFees2025   = [1095.4,1070.91,1905.03,1216.81,852.2,133.31,1200.55,1031.56,742.39,595.35,134.63,0];
+const fedexFees2025 = [1943.94,883.62,1350.14,1481.34,1182.02,2992,575.27,529.38,246.9,116.07,899.31,958.94];
+const upsFees2026   = [0,0,0];
+const fedexFees2026 = [1630.26,1681.58,1177.44];
+const allUpsFees    = [...upsFees2025, ...upsFees2026];
+const allFedexFees  = [...fedexFees2025, ...fedexFees2026];
+const allTotalFees  = ALL_MONTHS.map((_,i)=>allUpsFees[i]+allFedexFees[i]);
+
+const allNet2025 = [2068.97,1935.2,2902.7,2138.61,1835.63,1943.29,1574.89,881.35,570.95,136.71,-9.72,431.82];
+const allNet2026 = [605.03,836.08,158.52];
+const allNet     = [...allNet2025, ...allNet2026];
+
+const cc1Orders2025 = [0,0,0,0,1,1,0,1,4,5,4,5];
+const cc1Orders2026 = [3,2,1];
+const allCC1        = [...cc1Orders2025, ...cc1Orders2026];
+
+const catData = {
+  "Jan '25":[{n:'Electronics',c:4},{n:'Tools',c:3},{n:'Clothing',c:3},{n:'Health',c:3},{n:'Office',c:3}],
+  "Feb '25":[{n:'Leisure',c:5},{n:'Accessories',c:5},{n:'Clothing',c:4},{n:'Office',c:4},{n:'Tools',c:3}],
+  "Mar '25":[{n:'Electronics',c:12},{n:'Accessories',c:8},{n:'Leisure',c:7},{n:'Office',c:4},{n:'Health',c:4}],
+  "Apr '25":[{n:'Leisure',c:8},{n:'Health',c:4},{n:'Accessories',c:3},{n:'Clothing',c:2},{n:'Electronics',c:2}],
+  "May '25":[{n:'Office',c:7},{n:'Accessories',c:5},{n:'Health',c:4},{n:'Tools',c:4},{n:'Pet',c:2}],
+  "Jun '25":[{n:'Electronics',c:6},{n:'Health',c:4},{n:'Office',c:3},{n:'Food',c:2},{n:'Auto',c:2}],
+  "Jul '25":[{n:'Electronics',c:8},{n:'Health',c:6},{n:'Accessories',c:5},{n:'Office',c:5},{n:'Leisure',c:4}],
+  "Aug '25":[{n:'Health',c:3},{n:'Leisure',c:3},{n:'Office',c:2},{n:'Accessories',c:2},{n:'Auto',c:1}],
+  "Sep '25":[{n:'Electronics',c:4},{n:'Health',c:2},{n:'Office',c:1},{n:'Food',c:1},{n:'Leisure',c:1}],
+  "Oct '25":[{n:'Office',c:7},{n:'Accessories',c:4},{n:'Health',c:3},{n:'Electronics',c:3},{n:'Leisure',c:3}],
+  "Nov '25":[{n:'Accessories',c:4},{n:'Health',c:3},{n:'Tools',c:2},{n:'Clothing',c:1},{n:'Food',c:1}],
+  "Dec '25":[{n:'Clothing',c:4},{n:'Home',c:2},{n:'Tools',c:2},{n:'Accessories',c:1},{n:'Health',c:1}],
+  "Jan '26":[{n:'Electronics',c:3},{n:'Clothing',c:2},{n:'Office',c:2},{n:'Tools',c:1},{n:'Accessories',c:1}],
+  "Feb '26":[{n:'Accessories',c:2},{n:'Electronics',c:2},{n:'Office',c:2},{n:'Leisure',c:1},{n:'Clothing',c:1}],
+  "Mar '26":[{n:'Electronics',c:1},{n:'Food',c:1},{n:'Accessories',c:1},{n:'Health',c:1},{n:'Leisure',c:1}],
+};
+
+// ============================================================
+// CHART DEFAULTS
+// ============================================================
+Chart.defaults.color = '#6b7fa3';
+Chart.defaults.borderColor = '#1e2d4a';
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+Chart.defaults.font.size = 11;
+
+const COLORS = {
+  blue: '#3b82f6', cyan: '#06b6d4', green: '#22c55e', red: '#ef4444',
+  orange: '#f97316', yellow: '#eab308', purple: '#a855f7', ups: '#4f46e5', fedex: '#f97316'
+};
+
+function gridOpts() {
+  return { color:'rgba(30,45,74,0.6)', drawBorder:false };
+}
+function axisOpts(color='#6b7fa3') {
+  return { color, font:{ size:10, family:"'JetBrains Mono', monospace" }, maxTicksLimit:8 };
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function switchTab(id) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ============================================================
+// RENDER CHARTS
+// ============================================================
+function $c(id) { return document.getElementById(id).getContext('2d'); }
+const fmt = v => v.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
+const fmtD = v => '$'+v.toFixed(2);
+
+// Overview Signups
+new Chart($c('overviewSignups'),{
+  type:'bar',
+  data:{
+    labels:ALL_MONTHS,
+    datasets:[
+      {label:'Basic',data:allBasic,backgroundColor:'rgba(59,130,246,0.7)',borderRadius:3},
+      {label:'Premium',data:allPremium,backgroundColor:'rgba(168,85,247,0.9)',borderRadius:3,yAxisID:'y1'}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:true,position:'top',labels:{boxWidth:10,padding:14}}},
+    scales:{
+      x:{grid:gridOpts(),ticks:{...axisOpts(),maxRotation:45}},
+      y:{grid:gridOpts(),ticks:axisOpts(),title:{display:true,text:'Basic',font:{size:10}}},
+      y1:{position:'right',grid:{display:false},ticks:{...axisOpts(),maxTicksLimit:5},title:{display:true,text:'Premium',font:{size:10}}}
+    }
+  }
+});
+
+// Overview Orders
+new Chart($c('overviewOrders'),{
+  type:'bar',
+  data:{
+    labels:ALL_MONTHS,
+    datasets:[
+      {label:'UPS',data:allUpsOrders,backgroundColor:'rgba(79,70,229,0.75)',borderRadius:3},
+      {label:'FedEx',data:allFedexOrders,backgroundColor:'rgba(249,115,22,0.75)',borderRadius:3}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:true,position:'top',labels:{boxWidth:10,padding:14}}},
+    scales:{
+      x:{grid:gridOpts(),ticks:{...axisOpts(),maxRotation:45}},
+      y:{grid:gridOpts(),ticks:axisOpts(),stacked:true},
+    }
+  }
+});
+
+// Overview Revenue/Fees
+new Chart($c('overviewRevenueFees'),{
+  type:'line',
+  data:{
+    labels:ALL_MONTHS,
+    datasets:[
+      {label:'CC Revenue',data:allTotalCC,borderColor:COLORS.yellow,backgroundColor:'rgba(234,179,8,0.08)',fill:true,tension:0.4,pointRadius:2,borderWidth:2},
+      {label:'Carrier Fees',data:allTotalFees,borderColor:COLORS.red,backgroundColor:'rgba(239,68,68,0.05)',fill:true,tension:0.4,pointRadius:2,borderWidth:2},
+      {label:'Net Retained',data:allNet,borderColor:COLORS.green,backgroundColor:'rgba(34,197,94,0.05)',fill:true,tension:0.4,pointRadius:2,borderWidth:2}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:true,position:'top',labels:{boxWidth:10,padding:10,font:{size:10}}}},
+    scales:{
+      x:{grid:gridOpts(),ticks:{...axisOpts(),maxRotation:45}},
+      y:{grid:gridOpts(),ticks:{...axisOpts(),callback:v=>fmt(v)}}
+    }
+  }
+});
+
+// Carrier Pie
+new Chart($c('overviewCarrierPie'),{
+  type:'doughnut',
+  data:{
+    labels:['UPS (88)','FedEx (176)'],
+    datasets:[{data:[88,176],backgroundColor:['rgba(79,70,229,0.85)','rgba(249,115,22,0.85)'],borderColor:'#070b14',borderWidth:3,hoverOffset:8}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,cutout:'65%',
+    plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:12,padding:16}}}
+  }
+});
+
+// Flagged $1CC (overview)
+new Chart($c('overviewFlagged'),{
+  type:'bar',
+  data:{
+    labels:ALL_MONTHS,
+    datasets:[{label:'$1CC Orders',data:allCC1,backgroundColor:allCC1.map(v=>v>3?'rgba(239,68,68,0.8)':v>0?'rgba(249,115,22,0.7)':'rgba(30,45,74,0.4)'),borderRadius:3}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{grid:gridOpts(),ticks:{...axisOpts(),maxRotation:45}},
+      y:{grid:gridOpts(),ticks:{...axisOpts(),stepSize:1}}
+    }
+  }
+});
+
+// ---- SIGNUPS TAB ----
+new Chart($c('basicTrend'),{
+  type:'line',
+  data:{
+    labels:ALL_MONTHS,
+    datasets:[{label:'Basic Signups',data:allBasic,borderColor:COLORS.blue,backgroundColor:'rgba(59,130,246,0.1)',fill:true,tension:0.4,pointRadius:3,borderWidth:2.5}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{grid:gridOpts(),ticks:{...axisOpts(),maxRotation:45}},
+      y:{grid:gridOpts(),ticks:axisOpts()}
+    }
+  }
+});
+
+new Chart($c('basicPremiumStacked'),{
+  type:'bar',
+  data:{
+    labels:ALL_MONTHS,
+    datasets:[
+      {label:'Basic',data:allBasic,backgroundColor:'rgba(59,130,246,0.65)',borderRadius:3,stack:'s'},
+      {label:'Premium',data:allPremium.map(v=>v*10),backgroundColor:'rgba(168,85,247,0.85)',borderRadius:3,stack:'s'}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:true,position:'top',labels:{boxWidth:10,padding:12,font:{size:10}}},
+      tooltip:{callbacks:{label:ctx=>ctx.datasetIndex===1?`Premium: ${ctx.raw/10}`:ctx.label+': '+ctx.raw}}
+    },
+    scales:{
+      x:{grid:gridOpts(),ticks:{...axisOpts(),maxRotation:45}},
+      y:{grid:gridOpts(),ticks:axisOpts(),stacked:true}
+    }
+  }
+});
+
+new Chart($c('yoySignups'),{
+  type:'bar',
+  data:{
+    labels:['Jan','Feb','Mar'],
+    datasets:[
+      {label:'2025',data:[82,73,71],backgroundColor:'rgba(59,130,246,0.7)',borderRadius:3},
+      {label:'2026',data:[45,43,30],backgroundColor:'rgba(168,85,247,0.7)',borderRadius:3}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:true,position:'top',labels:{boxWidth:10,padding:12}}},
+    scales:{
+      x:{grid:gridOpts(),ticks:axisOpts()},
+      y:{grid:gridOpts(),ticks:axisOpts()}
+    }
+  }
+});
+
+// ---- ORDERS TAB ----
+new Chart($c('ordersCountStacked'),{
+  type:'bar',
+  data:{
+    labels:ALL_MONTHS,
+    datasets:[
+      {label:'UPS',data:allUpsOrders,backgroundColor:'rgba(79,70,229,0.75)',borderRadius:3},
+      {label:'FedEx',data:allFedexOrders,backgroundColor:'rgba(249,115,22,0.75)',borderRadius:3}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:true,position:'top',labels:{boxWidth:10,padding:12}}},
+    scales:{
+      x:{grid:gridOpts(),ticks:{...axisOpts(),maxRotation:45}},
+      y:{grid:gridOpts(),ticks:axisOpts()}
+    }
+  }
+});
+
+new Chart($c('ordersRevenue'),{
+  type:'bar',
+  data:{
+    labels:ALL_MONTHS,
+    datasets:[
+      {label:'UPS CC',data:allUpsCC,backgroundColor:'rgba(79,70,229,0.7)',borderRadius:3},
+      {label:'FedEx CC',data:allFedexCC,backgroundColor:'rgba(249,115,22,0.7)',borderRadius:3}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:true,position:'top',labels:{boxWidth:10,padding:12}}},
+    scales:{
+      x:{grid:gridOpts(),ticks:{...axisOpts(),maxRotation:45}},
+      y:{grid:gridOpts(),ticks:{...axisOpts(),callback:v=>fmt(v)}}
+    }
+  }
+});
+
+new Chart($c('revenueVsNet'),{
+  type:'line',
+  data:{
+    labels:ALL_MONTHS,
+    datasets:[
+      {label:'Total CC',data:allTotalCC,borderColor:COLORS.yellow,backgroundColor:'rgba(234,179,8,0.06)',fill:true,tension:0.4,pointRadius:3,borderWidth:2},
+      {label:'Net Retained',data:allNet,borderColor:COLORS.green,backgroundColor:'rgba(34,197,94,0.06)',fill:true,tension:0.4,pointRadius:3,borderWidth:2}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:true,position:'top',labels:{boxWidth:10,padding:12}}},
+    scales:{
+      x:{grid:gridOpts(),ticks:{...axisOpts(),maxRotation:45}},
+      y:{grid:gridOpts(),ticks:{...axisOpts(),callback:v=>fmt(v)}}
+    }
+  }
+});
+
+new Chart($c('flaggedBar'),{
+  type:'bar',
+  data:{
+    labels:ALL_MONTHS,
+    datasets:[{label:'$1CC Orders',data:allCC1,backgroundColor:allCC1.map(v=>v>3?'rgba(239,68,68,0.85)':v>0?'rgba(249,115,22,0.75)':'rgba(30,45,74,0.5)'),borderRadius:3}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{grid:gridOpts(),ticks:{...axisOpts(),maxRotation:45}},
+      y:{grid:gridOpts(),ticks:{...axisOpts(),stepSize:1}}
+    }
+  }
+});
+
+// ---- FEES TAB ----
+new Chart($c('feesStacked'),{
+  type:'bar',
+  data:{
+    labels:ALL_MONTHS,
+    datasets:[
+      {label:'UPS Fees',data:allUpsFees,backgroundColor:'rgba(79,70,229,0.72)',borderRadius:3},
+      {label:'FedEx Fees',data:allFedexFees,backgroundColor:'rgba(249,115,22,0.72)',borderRadius:3}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:true,position:'top',labels:{boxWidth:10,padding:12}}},
+    scales:{
+      x:{grid:gridOpts(),ticks:{...axisOpts(),maxRotation:45}},
+      y:{grid:gridOpts(),ticks:{...axisOpts(),callback:v=>fmt(v)}}
+    }
+  }
+});
+
+new Chart($c('waterfallChart'),{
+  type:'bar',
+  data:{
+    labels:ALL_MONTHS,
+    datasets:[
+      {label:'CC Revenue',data:allTotalCC,backgroundColor:'rgba(234,179,8,0.65)',borderRadius:3},
+      {label:'Carrier Fees',data:allTotalFees,backgroundColor:'rgba(239,68,68,0.55)',borderRadius:3},
+      {label:'Net Retained',data:allNet,backgroundColor:allNet.map(v=>v>=0?'rgba(34,197,94,0.7)':'rgba(239,68,68,0.9)'),borderRadius:3}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:true,position:'top',labels:{boxWidth:10,padding:12}}},
+    scales:{
+      x:{grid:gridOpts(),ticks:{...axisOpts(),maxRotation:45}},
+      y:{grid:gridOpts(),ticks:{...axisOpts(),callback:v=>fmt(v)}}
+    }
+  }
+});
+
+const margins = allNet.map((n,i)=>allTotalCC[i]>0?(n/allTotalCC[i]*100):0);
+new Chart($c('marginRatio'),{
+  type:'line',
+  data:{
+    labels:ALL_MONTHS,
+    datasets:[
+      {label:'Net Margin %',data:margins,borderColor:COLORS.cyan,backgroundColor:'rgba(6,182,212,0.08)',fill:true,tension:0.4,pointRadius:3,borderWidth:2},
+      {label:'Break-even (0%)',data:ALL_MONTHS.map(()=>0),borderColor:'rgba(239,68,68,0.4)',borderDash:[6,4],borderWidth:1,pointRadius:0}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:true,position:'top',labels:{boxWidth:10,padding:12}}},
+    scales:{
+      x:{grid:gridOpts(),ticks:{...axisOpts(),maxRotation:45}},
+      y:{grid:gridOpts(),ticks:{...axisOpts(),callback:v=>v.toFixed(0)+'%'}}
+    }
+  }
+});
+
+// ---- CATEGORY TAB ----
+// Aggregate counts
+const catTotal = {};
+Object.values(catData).forEach(list=>list.forEach(item=>{
+  catTotal[item.n]=(catTotal[item.n]||0)+item.c;
+}));
+const catSorted = Object.entries(catTotal).sort((a,b)=>b[1]-a[1]);
+const catColors = ['rgba(59,130,246,0.75)','rgba(6,182,212,0.75)','rgba(168,85,247,0.75)','rgba(34,197,94,0.75)','rgba(249,115,22,0.75)','rgba(234,179,8,0.75)','rgba(239,68,68,0.75)','rgba(79,70,229,0.75)','rgba(20,184,166,0.75)','rgba(236,72,153,0.75)','rgba(245,158,11,0.75)','rgba(16,185,129,0.75)'];
+
+new Chart($c('catFrequency'),{
+  type:'bar',
+  data:{
+    labels:catSorted.map(e=>e[0]),
+    datasets:[{label:'Total Orders',data:catSorted.map(e=>e[1]),backgroundColor:catSorted.map((_,i)=>catColors[i%catColors.length]),borderRadius:4}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    indexAxis:'y',
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{grid:gridOpts(),ticks:axisOpts()},
+      y:{grid:{display:false},ticks:{...axisOpts(),font:{size:11,family:"'DM Sans',sans-serif"}}}
+    }
+  }
+});
+
+// Month selector for categories
+const monthSel = document.getElementById('monthSelectorCat');
+const catBubbles = document.getElementById('catBubbles');
+ALL_MONTHS.forEach((m,i)=>{
+  const btn=document.createElement('button');
+  btn.className='month-btn'+(i>=12?' y2026':'')+(i===0?' active':'');
+  btn.textContent=m;
+  btn.onclick=()=>{
+    document.querySelectorAll('.month-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderCatBubbles(m);
+  };
+  monthSel.appendChild(btn);
+});
+
+function renderCatBubbles(month){
+  const items=catData[month]||[];
+  catBubbles.innerHTML='';
+  if(!items.length){catBubbles.innerHTML='<span style="color:var(--muted);font-size:12px;">No data</span>';return;}
+  items.forEach((item,i)=>{
+    const b=document.createElement('div');
+    b.className='cat-bubble';
+    b.innerHTML=`${item.n}<span class="cat-count">${item.c}</span>`;
+    b.style.borderColor=catColors[i]?.replace('0.75','0.5')||'var(--border)';
+    catBubbles.appendChild(b);
+  });
+}
+renderCatBubbles("Jan '25");
+
+// Category Heatmap Table
+(function(){
+  const allCats=[...new Set(Object.values(catData).flatMap(l=>l.map(i=>i.n)))].sort();
+  const tbl=document.getElementById('catHeatTable');
+  let html='<thead><tr><th>Category</th>';
+  ALL_MONTHS.forEach(m=>html+=`<th>${m}</th>`);
+  html+='<th>Total</th></tr></thead><tbody>';
+  allCats.forEach(cat=>{
+    let total=0;
+    html+=`<tr><td style="font-family:'DM Sans',sans-serif;color:var(--text);font-weight:500">${cat}</td>`;
+    ALL_MONTHS.forEach(m=>{
+      const item=(catData[m]||[]).find(i=>i.n===cat);
+      const c=item?item.c:0;
+      total+=c;
+      const bg=c>=8?'rgba(59,130,246,0.25)':c>=5?'rgba(59,130,246,0.15)':c>=3?'rgba(59,130,246,0.08)':c>0?'rgba(59,130,246,0.04)':'transparent';
+      const col=c>=5?'var(--accent)':c>0?'var(--text)':'var(--border)';
+      html+=`<td style="text-align:center;background:${bg};color:${col}">${c||'–'}</td>`;
+    });
+    html+=`<td style="text-align:center;font-weight:700;color:var(--accent2)">${total}</td></tr>`;
+  });
+  html+='</tbody>';
+  tbl.innerHTML=html;
+})();
+
+// Full Summary Table
+(function(){
+  const tbl=document.getElementById('fullSummaryTable');
+  let html=`<thead><tr><th>Month</th><th>Basic</th><th>Premium</th><th>UPS Ord</th><th>FedEx Ord</th><th>Total Ord</th><th>$1CC Flag</th><th>UPS CC</th><th>FedEx CC</th><th>Total CC</th><th>Net Retained</th></tr></thead><tbody>`;
+  ALL_MONTHS.forEach((m,i)=>{
+    const net=allNet[i];
+    const netCls=net<0?'neg':'pos';
+    const flagCls=allCC1[i]>3?'style="color:var(--red);font-weight:700"':allCC1[i]>0?'style="color:var(--orange)"':'';
+    html+=`<tr>
+      <td style="font-family:'DM Sans',sans-serif;color:${i>=12?'#a855f7':'var(--text)'}">${m}</td>
+      <td>${allBasic[i]}</td><td>${allPremium[i]||'–'}</td>
+      <td class="carrier-ups">${allUpsOrders[i]||'–'}</td>
+      <td class="carrier-fedex">${allFedexOrders[i]||'–'}</td>
+      <td style="font-weight:600">${allUpsOrders[i]+allFedexOrders[i]}</td>
+      <td ${flagCls}>${allCC1[i]||'–'}</td>
+      <td>${allUpsCC[i]?fmtD(allUpsCC[i]):'–'}</td>
+      <td>${allFedexCC[i]?fmtD(allFedexCC[i]):'–'}</td>
+      <td style="font-weight:600">${fmtD(allTotalCC[i])}</td>
+      <td class="${netCls}">${fmtD(net)}</td>
+    </tr>`;
+  });
+  // Totals
+  const tups=allUpsOrders.reduce((a,b)=>a+b,0),tfedex=allFedexOrders.reduce((a,b)=>a+b,0);
+  const tupscc=allUpsCC.reduce((a,b)=>a+b,0),tfedexcc=allFedexCC.reduce((a,b)=>a+b,0);
+  const tnet=allNet.reduce((a,b)=>a+b,0);
+  const tcc1=allCC1.reduce((a,b)=>a+b,0);
+  html+=`<tr class="total-row"><td>TOTAL</td>
+    <td>${allBasic.reduce((a,b)=>a+b)}</td><td>${allPremium.reduce((a,b)=>a+b)}</td>
+    <td>${tups}</td><td>${tfedex}</td><td>${tups+tfedex}</td><td>${tcc1}</td>
+    <td>${fmtD(tupscc)}</td><td>${fmtD(tfedexcc)}</td>
+    <td>${fmtD(tupscc+tfedexcc)}</td><td class="pos">${fmtD(tnet)}</td>
+  </tr>`;
+  html+='</tbody>';
+  tbl.innerHTML=html;
+})();
+
+// Revenue Detail Table
+(function(){
+  const tbl=document.getElementById('revenueTable');
+  let html=`<thead><tr><th>Month</th><th>UPS CC</th><th>FedEx CC</th><th>Total CC</th><th>UPS Fees</th><th>FedEx Fees</th><th>Total Fees</th><th>Net Retained</th><th>Margin %</th></tr></thead><tbody>`;
+  ALL_MONTHS.forEach((m,i)=>{
+    const net=allNet[i], cc=allTotalCC[i], fees=allTotalFees[i];
+    const margin=cc>0?(net/cc*100):0;
+    const netCls=net<0?'neg':'pos';
+    html+=`<tr>
+      <td style="font-family:'DM Sans',sans-serif;color:${i>=12?'#a855f7':'var(--text)'}">${m}</td>
+      <td class="carrier-ups">${allUpsCC[i]?fmtD(allUpsCC[i]):'–'}</td>
+      <td class="carrier-fedex">${allFedexCC[i]?fmtD(allFedexCC[i]):'–'}</td>
+      <td style="font-weight:600">${fmtD(cc)}</td>
+      <td class="carrier-ups">${allUpsFees[i]?fmtD(allUpsFees[i]):'–'}</td>
+      <td class="carrier-fedex">${allFedexFees[i]?fmtD(allFedexFees[i]):'–'}</td>
+      <td style="font-weight:600">${fmtD(fees)}</td>
+      <td class="${netCls}">${fmtD(net)}</td>
+      <td class="${margin<0?'neg':margin>40?'pos':''}">${margin.toFixed(1)}%</td>
+    </tr>`;
+  });
+  const tcc=allTotalCC.reduce((a,b)=>a+b), tfees=allTotalFees.reduce((a,b)=>a+b), tnet=allNet.reduce((a,b)=>a+b);
+  html+=`<tr class="total-row"><td>TOTAL</td>
+    <td>${fmtD(allUpsCC.reduce((a,b)=>a+b))}</td><td>${fmtD(allFedexCC.reduce((a,b)=>a+b))}</td><td>${fmtD(tcc)}</td>
+    <td>${fmtD(allUpsFees.reduce((a,b)=>a+b))}</td><td>${fmtD(allFedexFees.reduce((a,b)=>a+b))}</td><td>${fmtD(tfees)}</td>
+    <td class="pos">${fmtD(tnet)}</td><td>${(tnet/tcc*100).toFixed(1)}%</td>
+  </tr>`;
+  html+='</tbody>';
+  tbl.innerHTML=html;
+})();
+
+// Fees Table
+(function(){
+  const tbl=document.getElementById('feesTable');
+  let html=`<thead><tr><th>Month</th><th>UPS Orders</th><th>FedEx Orders</th><th>UPS Fees</th><th>FedEx Fees</th><th>Total Fees</th><th>Gross CC</th><th>Net Retained</th></tr></thead><tbody>`;
+  ALL_MONTHS.forEach((m,i)=>{
+    const net=allNet[i];
+    const netCls=net<0?'neg':'pos';
+    html+=`<tr>
+      <td style="font-family:'DM Sans',sans-serif;color:${i>=12?'#a855f7':'var(--text)'}">${m}</td>
+      <td class="carrier-ups">${allUpsOrders[i]||'–'}</td>
+      <td class="carrier-fedex">${allFedexOrders[i]||'–'}</td>
+      <td class="carrier-ups">${allUpsFees[i]?fmtD(allUpsFees[i]):'–'}</td>
+      <td class="carrier-fedex">${allFedexFees[i]?fmtD(allFedexFees[i]):'–'}</td>
+      <td style="font-weight:600">${fmtD(allTotalFees[i])}</td>
+      <td>${fmtD(allTotalCC[i])}</td>
+      <td class="${netCls}">${fmtD(net)}</td>
+    </tr>`;
+  });
+  html+='</tbody>';
+  tbl.innerHTML=html;
+})();
+</script>
+</body>
+</html>
